@@ -1,0 +1,14 @@
+[
+    {
+      "description": "Complete the Python function to add two numbers.",
+      "code_snippet": "def add_numbers(a, b):\n  return ___ + ___",
+      "words": ["a", "b", "c", "print", "return", "+"],
+      "solution": ["a", "b"]
+    },
+    {
+      "description": "Complete the JavaScript code to print 'Hello, World!' to the console.",
+      "code_snippet": "console.log(____);",
+      "words": ["'Hello, World!'", "function", "variable", "console"],
+      "solution": ["'Hello, World!'"]
+    }
+  ]
