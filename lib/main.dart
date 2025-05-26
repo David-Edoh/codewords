@@ -171,8 +171,9 @@ class _GameScreenState extends State<GameScreen> {
                         child: buildSolutionAreaContent(),
                       );
                     },
-                    onAccept: (data) => _addWordToSolution(data),
-                    onWillAccept: (data) => true,
+                    onAcceptWithDetails:
+                        (data) => _addWordToSolution(data.data),
+                    onWillAcceptWithDetails: (data) => true,
                   ),
 
                   const SizedBox(height: 20),
