@@ -113,7 +113,7 @@ class _GameScreenState extends State<GameScreen> {
                     padding: const EdgeInsets.all(12),
                     color: Colors.grey[200],
                     width: double.infinity,
-                    child: const Text('// Code snippet goes here'),
+                    child: Text(_currentChallenge['code_snippet']),
                   ),
                   const SizedBox(height: 20),
                   Text(
