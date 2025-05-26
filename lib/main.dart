@@ -65,7 +65,6 @@ class _GameScreenState extends State<GameScreen> {
 
   Color _solutionAreaBorderColor = Colors.yellow[100]!;
 
-
   // When a word is dropped into a specific slot (e.g., index 0)
   void _handleWordDrop(String word, int slotIndex) {
     setState(() {
@@ -120,6 +119,22 @@ class _GameScreenState extends State<GameScreen> {
   @override
   void initState() {
     super.initState();
+    loadChallenge();
+  }
+
+  // Selects a random challenge from the loaded challenges
+  void loadChallenge() {
+    _wordBank = List<String>.from(widget.currentChallenge['words']);
+    _originalWordBank = List<String>.from(_wordBank);
+    _solutionArea = List<String?>.filled(
+      widget.currentChallenge['solution'].length,
+      null,
+    );
+    _solutionSlotWords = List<String>.filled(
+      widget.currentChallenge['solution'].length,
+      "___",
+    );
+    _solutionAreaBorderColor = Colors.yellow[100]!; // Reset border color
   }
 
   @override
