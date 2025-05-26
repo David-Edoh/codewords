@@ -52,13 +52,65 @@ class _GameScreenState extends State<GameScreen> {
   List<String?> _solutionArea = [];
   List<String> _originalWordBank = [];
   bool _hasInitializedChallenge = false;
+  List<String> _solutionSlotWords = [];
 
-  Color _solutionAreaBorderColor = Colors.blue[100]!;
+  Color _solutionAreaBorderColor = Colors.yellow[100]!;
 
   Future<List<dynamic>> _loadChallenges() async {
     final String response = await rootBundle.loadString('challenges.json');
     final data = await json.decode(response);
     return data;
+  }
+
+  // When a word is dropped into a specific slot (e.g., index 0)
+  void _handleWordDrop(String word, int slotIndex) {
+    setState(() {
+      _solutionSlotWords[slotIndex] = word;
+    });
+  }
+
+  // In your build method, to display the code snippet
+  Widget _buildCodeSnippet() {
+    String originalSnippet = _currentChallenge['code_snippet'];
+    List<String> parts = originalSnippet.split(
+      _currentChallenge['place_holder'],
+    ); // Split by your placeholder
+
+    List<InlineSpan> spans = [];
+    for (int i = 0; i < parts.length; i++) {
+      spans.add(
+        TextSpan(
+          text: parts[i],
+          style: TextStyle(
+            color: Colors.blue,
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
+          ),
+        ),
+      );
+      if (i < _solutionSlotWords.length) {
+        spans.add(
+          TextSpan(
+            text:
+                _solutionSlotWords[i].isEmpty
+                    ? _currentChallenge['place_holder']
+                    : _solutionSlotWords[i],
+            style: TextStyle(
+              color: Colors.blue,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ), // Optional styling
+          ),
+        );
+      }
+    }
+
+    return RichText(
+      text: TextSpan(
+        children: spans,
+        style: DefaultTextStyle.of(context).style, // Inherit default style
+      ),
+    );
   }
 
   @override
@@ -113,7 +165,7 @@ class _GameScreenState extends State<GameScreen> {
                     padding: const EdgeInsets.all(12),
                     color: Colors.grey[200],
                     width: double.infinity,
-                    child: Text(_currentChallenge['code_snippet']),
+                    child: _buildCodeSnippet(),
                   ),
                   const SizedBox(height: 20),
                   Text(
@@ -171,8 +223,10 @@ class _GameScreenState extends State<GameScreen> {
                         child: buildSolutionAreaContent(),
                       );
                     },
-                    onAcceptWithDetails:
-                        (data) => _addWordToSolution(data.data),
+                    onAcceptWithDetails: (data) {
+                      print(data.data);
+                      _addWordToSolution(data.data);
+                    },
                     onWillAcceptWithDetails: (data) => true,
                   ),
 
@@ -204,7 +258,11 @@ class _GameScreenState extends State<GameScreen> {
       _currentChallenge['solution'].length,
       null,
     );
-    _solutionAreaBorderColor = Colors.blue[100]!; // Reset border color
+    _solutionSlotWords = List<String>.filled(
+      _currentChallenge['solution'].length,
+      "___",
+    );
+    _solutionAreaBorderColor = Colors.yellow[100]!; // Reset border color
   }
 
   // Builds the visual representation of the solution area
@@ -231,9 +289,17 @@ class _GameScreenState extends State<GameScreen> {
                           word == null
                               ? Colors.grey[300]
                               : Colors.lightGreen[200],
+                      child: Padding(
+                        // margin: const EdgeInsets.symmetric(horizontal: 4),
+                        padding: const EdgeInsets.all(8.0),
+                        child: Center(child: Text(word ?? 'Drag here')),
+                      ),
                     ); // Changed color for filled slots
                   },
-                  onAccept: (data) => _addWordToSolutionAtIndex(data, index),
+                  onAcceptWithDetails: (data) {
+                    print("Accepting word: ${data.data}");
+                    _addWordToSolutionAtIndex(data.data, index);
+                  },
                 ),
               );
             }).toList(),
@@ -251,6 +317,7 @@ class _GameScreenState extends State<GameScreen> {
 
   // Adds a word to the solution area at the first available null spot
   void _addWordToSolution(String word) {
+    print("Adding word to solution: $word");
     setState(() {
       final index = _solutionArea.indexOf(null);
       if (index != -1) {
@@ -262,6 +329,8 @@ class _GameScreenState extends State<GameScreen> {
 
   // Adds a word to the solution area at a specific index (for drag and drop onto specific slots)
   void _addWordToSolutionAtIndex(String word, int index) {
+    print("Adding word to solution at index $index: $word");
+    _handleWordDrop(word, index);
     setState(() {
       if (_solutionArea[index] != null) {
         // If there's already a word, return it to the word bank
