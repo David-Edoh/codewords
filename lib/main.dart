@@ -51,6 +51,7 @@ class _GameScreenState extends State<GameScreen> {
   List<String> _wordBank = [];
   List<String?> _solutionArea = [];
   List<String> _originalWordBank = [];
+  bool _hasInitializedChallenge = false;
 
   Color _solutionAreaBorderColor = Colors.blue[100]!;
 
@@ -85,7 +86,11 @@ class _GameScreenState extends State<GameScreen> {
             return const Center(child: Text('No challenges found.'));
           } else {
             _challenges = snapshot.data!;
-            _selectRandomChallenge();
+            if (!_hasInitializedChallenge) {
+              print("Initializing challenge...");
+              _selectRandomChallenge();
+              _hasInitializedChallenge = true;
+            }
 
             return Padding(
               padding: const EdgeInsets.all(16.0),
@@ -111,7 +116,7 @@ class _GameScreenState extends State<GameScreen> {
                     child: const Text('// Code snippet goes here'),
                   ),
                   const SizedBox(height: 20),
-                  const Text(
+                  Text(
                     'Word Bank:',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
@@ -138,6 +143,7 @@ class _GameScreenState extends State<GameScreen> {
                                 backgroundColor: Colors.grey,
                               ),
                             ),
+
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 300),
                               curve: Curves.easeOut,
@@ -197,8 +203,7 @@ class _GameScreenState extends State<GameScreen> {
       _currentChallenge['solution'].length,
       null,
     );
-    _solutionAreaBorderColor =
-        Colors.blue[100]!; // Reset border color // Corrected variable name
+    _solutionAreaBorderColor = Colors.blue[100]!; // Reset border color
   }
 
   // Builds the visual representation of the solution area
@@ -224,10 +229,8 @@ class _GameScreenState extends State<GameScreen> {
                       color:
                           word == null
                               ? Colors.grey[300]
-                              : Colors
-                                  .lightGreen[200], // Changed color for filled slots
-                      child: Center(child: Text(word ?? '')),
-                    );
+                              : Colors.lightGreen[200],
+                    ); // Changed color for filled slots
                   },
                   onAccept: (data) => _addWordToSolutionAtIndex(data, index),
                 ),
@@ -291,5 +294,9 @@ class _GameScreenState extends State<GameScreen> {
       _solutionAreaBorderColor =
           isCorrect ? Colors.green[300]! : Colors.red[300]!;
     });
+
+    if (isCorrect) {
+      _selectRandomChallenge(); // Load a new challenge on success
+    }
   }
 }
